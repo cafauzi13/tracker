@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pekan Ini — 7–13 Sept 2026</title>
+<meta name="theme-color" content="#181f1d">
+<meta name="description" content="Tracker checklist mingguan — jadwal kuliah, deadline, fokus harian, dan jangkar ibadah/olahraga.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#181f1d;
+    --surface:#212a27;
+    --surface-2:#2a3531;
+    --line:#3a453f;
+    --paper:#ece7db;
+    --paper-dim:#a9a89b;
+    --gold:#c9a24a;
+    --rust:#b5573a;
+    --moss:#7fa07a;
+    --moss-dim:#3f4c42;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:640px;margin:0 auto;padding:28px 18px 60px;}
+  header{margin-bottom:20px;}
+  .eyebrow{font-size:13px;color:var(--gold);margin:0 0 6px;}
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:30px;
+    line-height:1.15;
+    margin:0 0 10px;
+  }
+  .quote{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:14.5px;
+    color:var(--paper-dim);
+    border-left:2px solid var(--gold);
+    padding-left:12px;
+    margin:14px 0 0;
+    line-height:1.5;
+  }
+  .week-progress{margin-top:18px;}
+  .week-progress-top{display:flex;justify-content:space-between;font-size:12.5px;color:var(--paper-dim);margin-bottom:6px;}
+  .bar{height:6px;border-radius:4px;background:var(--surface-2);overflow:hidden;}
+  .bar-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s ease;}
+
+  .week-select-wrap{
+    display:flex;align-items:center;gap:8px;
+    margin:14px 0 0;font-size:12.5px;color:var(--paper-dim);
+  }
+  .week-select-wrap select{
+    flex:1;
+    background:var(--surface);border:1px solid var(--line);color:var(--paper);
+    border-radius:8px;padding:7px 9px;font-size:12.5px;font-family:'Inter',sans-serif;
+  }
+
+  .tabs{
+    display:flex;gap:6px;overflow-x:auto;
+    margin:24px 0 20px;
+    padding-bottom:4px;
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    flex:0 0 auto;
+    padding:9px 13px;
+    border-radius:10px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    color:var(--paper-dim);
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    text-align:center;
+    line-height:1.25;
+  }
+  .tab .d{display:block;font-size:10.5px;font-weight:500;opacity:.75;}
+  .tab.active{background:var(--gold);border-color:var(--gold);color:#20190a;}
+  .tab.today:not(.active){border-color:var(--gold);color:var(--gold);}
+  .tab .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--moss);margin-left:4px;vertical-align:middle;}
+
+  .day{display:none;}
+  .day.active{display:block;}
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:16px 16px 6px;
+    margin-bottom:14px;
+  }
+  .card h2{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:15.5px;
+    margin:0 0 10px;
+    color:var(--paper);
+  }
+  .card.deadline{border-color:rgba(181,87,58,.55);background:linear-gradient(180deg, rgba(181,87,58,.14), rgba(181,87,58,.03));}
+  .card.deadline h2{color:#e2926f;}
+  .card.agenda{border-color:rgba(201,162,74,.5);background:linear-gradient(180deg, rgba(201,162,74,.13), rgba(201,162,74,.02));}
+  .card.agenda h2{color:var(--gold);}
+
+  .kuliah-row{
+    display:flex;justify-content:space-between;gap:10px;
+    font-size:13.5px;padding:7px 0;border-bottom:1px solid var(--line);
+  }
+  .kuliah-row:last-child{border-bottom:none;}
+  .kuliah-row .mk{font-weight:600;}
+  .kuliah-row .rm{color:var(--paper-dim);font-size:12px;white-space:nowrap;}
+
+  .item{
+    display:flex;align-items:flex-start;gap:10px;
+    padding:9px 0;border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .item:last-child{border-bottom:none;}
+  .box{
+    flex:0 0 19px;width:19px;height:19px;margin-top:1px;
+    border-radius:6px;border:1.5px solid var(--paper-dim);
+    display:flex;align-items:center;justify-content:center;
+    transition:all .15s ease;
+  }
+  .box svg{width:12px;height:12px;opacity:0;transition:opacity .15s ease;}
+  .item.checked .box{background:var(--moss);border-color:var(--moss);}
+  .item.checked .box svg{opacity:1;}
+  .item.checked .label{color:var(--paper-dim);text-decoration:line-through;text-decoration-color:var(--moss-dim);}
+  .label{font-size:14px;line-height:1.4;}
+  .sub{display:block;font-size:12px;color:var(--paper-dim);margin-top:1px;}
+
+  .anchors-grid{display:flex;flex-wrap:wrap;gap:8px;padding-bottom:12px;}
+  .pillcheck{
+    padding:8px 12px;border-radius:9px;
+    background:var(--surface-2);border:1px solid var(--line);
+    font-size:12.5px;font-weight:500;color:var(--paper-dim);
+    cursor:pointer;user-select:none;
+    display:flex;align-items:center;gap:6px;
+  }
+  .pillcheck.checked{background:var(--moss-dim);border-color:var(--moss);color:var(--paper);}
+  .pillcheck .dot2{width:6px;height:6px;border-radius:50%;background:var(--paper-dim);}
+  .pillcheck.checked .dot2{background:var(--moss);}
+
+  .notes{
+    width:100%;
+    min-height:84px;
+    resize:vertical;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    margin-bottom:12px;
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    line-height:1.5;
+  }
+  .notes::placeholder{color:var(--paper-dim);}
+  .notes:focus{outline:none;border-color:var(--gold);}
+
+  footer{margin-top:22px;text-align:center;}
+  footer p{font-size:11.5px;color:var(--paper-dim);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow" id="eyebrow">7 – 13 September 2026</p>
+    <h1>Pekan ini, satu blok<br>per hari.</h1>
+    <div class="week-progress">
+      <div class="week-progress-top"><span id="weekLabel">Progres pekan</span><span id="weekPct">0%</span></div>
+      <div class="bar"><div class="bar-fill" id="weekBar" style="width:0%"></div></div>
+    </div>
+    <div class="week-select-wrap" id="weekSelectWrap" style="display:none;">
+      <span>Riwayat:</span>
+      <select id="weekSelect"></select>
+    </div>
+    <p class="quote">"Ingat mati, jangan duniawi terus yang dipikir." Kerjakan satu per satu dengan tenang, hasilnya serahkan sepenuhnya pada Allah.</p>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="days"></div>
+
+  <footer><p>Tersimpan otomatis di perangkat ini setiap kamu centang atau menulis catatan.</p></footer>
+</div>
+
+<script>
+// ============================================================
+// EDIT DI SINI TIAP MINGGU
+// Ganti WEEK_LABEL, DAYS, ANCHORS, dan todayId, lalu commit+push.
+// Data pekan lama otomatis tersimpan sebagai riwayat (lihat dropdown
+// "Riwayat" di atas) — tidak akan hilang walau array ini ditimpa.
+// ============================================================
+
+const WEEK_LABEL = "7 – 13 September 2026";
+
+const DAYS = [
+  {
+    id: "2026-09-07", label:"Senin", date:"7 Sep", tag:"Hari bebas kuliah",
+    kuliah: [],
+    agenda: [],
+    deadlines: [],
+    focus: [
+      "Cicil Tugas Preskriptif — target 50%",
+      "Setup kerangka & batasan Progress Chatbot (target minimal, bukan sempurna)",
+      "Modul 1 ServiceNow"
+    ]
+  },
+  {
+    id:"2026-09-08", label:"Selasa", date:"8 Sep", tag:"",
+    kuliah:[{mk:"KBT 17", waktu:"09.40–11.20", ruang:"TW1-502"}],
+    agenda: [],
+    deadlines: [],
+    focus:[
+      "Siang–sore: draft akhir Tugas Preskriptif — target 90%",
+      "Malam: brainstorming & outline Portofolio Apple Dev (pilih project terbaik)"
+    ]
+  },
+  {
+    id:"2026-09-09", label:"Rabu", date:"9 Sep", tag:"",
+    kuliah:[
+      {mk:"Kognitif", waktu:"07.30–10.00", ruang:"2104"},
+      {mk:"Bahasa Indonesia 18", waktu:"15.30–17.10", ruang:"TW1-201"}
+    ],
+    agenda:[{judul:"Zoom Apple", waktu:"17.00", ket:"Kuliah B. Indo selesai 17.10 — siapkan perangkat/koneksi lebih awal, jangan mepet"}],
+    deadlines:[],
+    focus:[
+      "Jeda siang (10.00–15.00): final review & submit Tugas Preskriptif",
+      "17.00: Zoom Apple",
+      "Malam: belajar santai ServiceNow (modul lanjutan)"
+    ]
+  },
+  {
+    id:"2026-09-10", label:"Kamis", date:"10 Sep", tag:"",
+    kuliah:[{mk:"PAP2", waktu:"07.30–10.00", ruang:"2102"}],
+    agenda:[],
+    deadlines:[{judul:"Tugas Preskriptif", ket:"Sudah selesai dari kemarin — tinggal submit"}],
+    focus:[
+      "Siang (10.30–15.30): eksekusi koding/prompting/evaluasi Progress Chatbot",
+      "Sore (16.00–17.30): olahraga keringat biar tidak burnout",
+      "Malam: tulis paper mapping untuk UAT project"
+    ]
+  },
+  {
+    id:"2026-09-11", label:"Jumat", date:"11 Sep", tag:"",
+    kuliah:[
+      {mk:"Bahasa Inggris 17", waktu:"07.00–09.30", ruang:"TW1-705"},
+      {mk:"Pancasila 17", waktu:"09.40–11.20", ruang:"TW1-606"}
+    ],
+    agenda:[],
+    deadlines:[
+      {judul:"Progress Chatbot", ket:"Finalisasi & kumpulkan"},
+      {judul:"Paper mapping UAT", ket:"Finalisasi & kumpulkan"},
+      {judul:"ServiceNow modul awal", ket:"Khatamkan, catat persiapan asdos 16 Sep"}
+    ],
+    focus:[
+      "Setelah Jumatan: finalisasi & kumpulkan milestone Chatbot & paper UAT",
+      "Sore/malam: khatamkan modul awal ServiceNow + catatan kecil persiapan asdos"
+    ]
+  },
+  {
+    id:"2026-09-12", label:"Sabtu", date:"12 Sep", tag:"Weekend deep focus",
+    kuliah:[],
+    agenda:[],
+    deadlines:[],
+    focus:[
+      "Pagi–siang: deep work Portofolio Apple Dev (desain, storytelling problem-solution, screenshot/mockup)",
+      "Sore: olahraga outdoor / me-time sehat tanpa distraksi gadget",
+      "Malam: mock test / latihan intensif IELTS"
+    ]
+  },
+  {
+    id:"2026-09-13", label:"Minggu", date:"13 Sep", tag:"",
+    kuliah:[],
+    agenda:[{judul:"Zoom PPI Kyoto", waktu:"10.00", ket:""}],
+    deadlines:[{judul:"Submit Portofolio Apple Dev", ket:""}],
+    focus:[
+      "Pagi: ikuti Zoom PPI Kyoto",
+      "Siang–sore: polish terakhir & submit portofolio Apple Dev",
+      "Malam: evaluasi pekan, rekap persiapan asdos tgl 16, istirahat lebih awal"
+    ]
+  }
+];
+
+const ANCHORS = ["Subuh","Dzuhur","Ashar","Maghrib","Isya","Hafalan 15–20 menit","IELTS 30–45 menit","Olahraga 20–30 menit"];
+
+const todayId = "2026-09-07";
+
+// ============================================================
+// akhir blok edit mingguan
+// ============================================================
+
+// ---- penyimpanan lokal (localStorage), menggantikan window.storage ----
+const STORE_PREFIX = 'pekanini:';
+
+function lsGet(key){
+  try{ return localStorage.getItem(STORE_PREFIX+key); }
+  catch(e){ console.error('gagal baca', e); return null; }
+}
+function lsSet(key, val){
+  try{ localStorage.setItem(STORE_PREFIX+key, val); }
+  catch(e){ console.error('gagal simpan', e); }
+}
+
+// state checklist yang sedang aktif ditampilkan: { "dayId:section:idx": true }
+let state = {};
+// pekan yang sedang aktif ditampilkan (bisa pekan ini atau pekan lampau)
+let activeWeekId = DAYS[0].id;
+let activeDays = DAYS;
+let activeAnchors = ANCHORS;
+
+function checkSvg(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="#12201a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 18 20 6"></polyline></svg>';
+}
+
+function itemKey(dayId, section, idx){ return dayId+":"+section+":"+idx; }
+
+// ---- riwayat pekan: setiap kali app dibuka, isi DAYS/ANCHORS pekan
+// ini "difoto" ke localStorage supaya tetap bisa dilihat walau minggu
+// depan array DAYS ditimpa dengan jadwal baru. Status checklist & catatan
+// harian TIDAK disalin ke sini — itu tetap dibaca langsung dari
+// localStorage berdasarkan tanggal (dayId), jadi tidak dobel. ----
+function getWeekIndex(){
+  try{ return JSON.parse(lsGet('weeks')) || []; }
+  catch(e){ return []; }
+}
+function getWeekSnapshot(weekId){
+  try{ return JSON.parse(lsGet('week:'+weekId)); }
+  catch(e){ return null; }
+}
+function archiveCurrentWeek(){
+  const weekId = DAYS[0].id;
+  const snapshot = { weekId, label: WEEK_LABEL, days: DAYS, anchors: ANCHORS, savedAt: new Date().toISOString() };
+  lsSet('week:'+weekId, JSON.stringify(snapshot));
+  const idx = getWeekIndex();
+  if(!idx.includes(weekId)){
+    idx.push(weekId);
+    idx.sort();
+    lsSet('weeks', JSON.stringify(idx));
+  }
+}
+
+function dayTotalAndDone(day, anchors){
+  let total=0, done=0;
+  day.deadlines.forEach((_,i)=>{ total++; if(state[itemKey(day.id,'deadline',i)]) done++; });
+  day.focus.forEach((_,i)=>{ total++; if(state[itemKey(day.id,'focus',i)]) done++; });
+  anchors.forEach((_,i)=>{ total++; if(state[itemKey(day.id,'anchor',i)]) done++; });
+  return {total, done};
+}
+
+function renderTabs(activeId, days, isCurrent){
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = "";
+  days.forEach(d=>{
+    const el = document.createElement('div');
+    el.className = 'tab' + (d.id===activeId?' active':'') + (isCurrent && d.id===todayId?' today':'');
+    el.innerHTML = `${d.label}<span class="d">${d.date}</span>`;
+    el.onclick = ()=> showDay(d.id);
+    tabs.appendChild(el);
+  });
+}
+
+function renderDay(day, anchors){
+  const wrap = document.createElement('div');
+  wrap.className = 'day';
+  wrap.id = 'day-'+day.id;
+
+  let html = "";
+
+  if(day.kuliah.length){
+    html += `<div class="card"><h2>Kuliah</h2>`;
+    day.kuliah.forEach(k=>{
+      html += `<div class="kuliah-row"><span class="mk">${k.mk} · ${k.waktu}</span><span class="rm">${k.ruang}</span></div>`;
+    });
+    html += `</div>`;
+  }
+
+  if(day.agenda.length){
+    html += `<div class="card agenda"><h2>Agenda</h2>`;
+    day.agenda.forEach(a=>{
+      html += `<div class="kuliah-row"><span class="mk">${a.judul}${a.waktu? ' · '+a.waktu:''}${a.ket?`<span class="sub">${a.ket}</span>`:''}</span></div>`;
+    });
+    html += `</div>`;
+  }
+
+  if(day.deadlines.length){
+    html += `<div class="card deadline"><h2>Deadline hari ini</h2>`;
+    day.deadlines.forEach((dl,i)=>{
+      html += `<div class="item" data-key="${itemKey(day.id,'deadline',i)}"><div class="box"></div><div class="label">${dl.judul}${dl.ket?`<span class="sub">${dl.ket}</span>`:''}</div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `<div class="card"><h2>Fokus utama</h2>`;
+  day.focus.forEach((f,i)=>{
+    html += `<div class="item" data-key="${itemKey(day.id,'focus',i)}"><div class="box"></div><div class="label">${f}</div></div>`;
+  });
+  html += `</div>`;
+
+  html += `<div class="card"><h2>Jangkar harian</h2><div class="anchors-grid">`;
+  anchors.forEach((a,i)=>{
+    html += `<div class="pillcheck" data-key="${itemKey(day.id,'anchor',i)}"><span class="dot2"></span>${a}</div>`;
+  });
+  html += `</div></div>`;
+
+  html += `<div class="card"><h2>Catatan, reminder & diary</h2>
+    <textarea class="notes" data-day="${day.id}" placeholder="Tulis catatan bebas, pengingat, atau refleksi singkat hari ini..."></textarea>
+  </div>`;
+
+  wrap.innerHTML = html;
+
+  const ta = wrap.querySelector('textarea.notes');
+  ta.value = lsGet('note:'+day.id) || '';
+
+  return wrap;
+}
+
+function applyState(container){
+  container.querySelectorAll('.item[data-key]').forEach(el=>{
+    const k = el.dataset.key;
+    el.classList.toggle('checked', !!state[k]);
+    const box = el.querySelector('.box');
+    box.innerHTML = state[k] ? checkSvg() : "";
+  });
+  container.querySelectorAll('.pillcheck[data-key]').forEach(el=>{
+    const k = el.dataset.key;
+    el.classList.toggle('checked', !!state[k]);
+  });
+}
+
+function toggle(key){
+  state[key] = !state[key];
+  lsSet('check:'+key, state[key] ? "1" : "0");
+  applyState(document);
+  updateWeekProgress();
+}
+
+function updateWeekProgress(){
+  let total=0, done=0;
+  activeDays.forEach(d=>{
+    const r = dayTotalAndDone(d, activeAnchors);
+    total += r.total; done += r.done;
+  });
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('weekPct').textContent = pct+'%';
+  document.getElementById('weekBar').style.width = pct+'%';
+}
+
+function showDay(id){
+  document.querySelectorAll('.day').forEach(d=> d.classList.toggle('active', d.id === 'day-'+id));
+  renderTabs(id, activeDays, activeWeekId === DAYS[0].id);
+}
+
+document.addEventListener('click', (e)=>{
+  const item = e.target.closest('.item[data-key], .pillcheck[data-key]');
+  if(item) toggle(item.dataset.key);
+});
+
+document.addEventListener('input', (e)=>{
+  const ta = e.target.closest('textarea.notes[data-day]');
+  if(ta) lsSet('note:'+ta.dataset.day, ta.value);
+});
+
+function loadState(days, anchors){
+  const s = {};
+  days.forEach(d=>{
+    d.deadlines.forEach((_,i)=>{ const k=itemKey(d.id,'deadline',i); if(lsGet('check:'+k)==="1") s[k]=true; });
+    d.focus.forEach((_,i)=>{ const k=itemKey(d.id,'focus',i); if(lsGet('check:'+k)==="1") s[k]=true; });
+    anchors.forEach((_,i)=>{ const k=itemKey(d.id,'anchor',i); if(lsGet('check:'+k)==="1") s[k]=true; });
+  });
+  return s;
+}
+
+function populateWeekSelect(){
+  const idx = getWeekIndex();
+  const curId = DAYS[0].id;
+  if(!idx.includes(curId)) idx.push(curId);
+  idx.sort().reverse(); // terbaru dulu (format tanggal ISO, aman diurutkan sebagai string)
+
+  const wrap = document.getElementById('weekSelectWrap');
+  const sel = document.getElementById('weekSelect');
+
+  if(idx.length <= 1){ wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+
+  sel.innerHTML = '';
+  idx.forEach(id=>{
+    const opt = document.createElement('option');
+    opt.value = id;
+    if(id === curId){
+      opt.textContent = WEEK_LABEL + ' (pekan ini)';
+    }else{
+      const snap = getWeekSnapshot(id);
+      opt.textContent = snap ? snap.label : id;
+    }
+    sel.appendChild(opt);
+  });
+  sel.value = activeWeekId;
+  sel.onchange = ()=> renderWeek(sel.value);
+}
+
+function renderWeek(weekId, focusDayId){
+  const isCurrent = weekId === DAYS[0].id;
+  let days, anchors;
+
+  if(isCurrent){
+    days = DAYS; anchors = ANCHORS;
+  }else{
+    const snap = getWeekSnapshot(weekId);
+    if(!snap) return;
+    days = snap.days; anchors = snap.anchors;
+  }
+
+  activeWeekId = weekId;
+  activeDays = days;
+  activeAnchors = anchors;
+  state = loadState(days, anchors);
+
+  const daysEl = document.getElementById('days');
+  daysEl.innerHTML = '';
+  days.forEach(d => daysEl.appendChild(renderDay(d, anchors)));
+  document.querySelectorAll('.day').forEach(applyState);
+
+  const defaultDay = (focusDayId && days.some(d=>d.id===focusDayId))
+    ? focusDayId
+    : (isCurrent && days.some(d=>d.id===todayId) ? todayId : days[0].id);
+
+  showDay(defaultDay);
+  updateWeekProgress();
+
+  document.getElementById('eyebrow').textContent = isCurrent ? WEEK_LABEL : ((getWeekSnapshot(weekId) || {}).label || WEEK_LABEL);
+  document.title = 'Pekan Ini — ' + document.getElementById('eyebrow').textContent;
+
+  populateWeekSelect();
+}
+
+function init(){
+  archiveCurrentWeek();
+  renderWeek(DAYS[0].id, todayId);
+}
+init();
+
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(e=> console.error('gagal daftar service worker', e));
+  });
+}
+</script>
+</body>
+</html>
