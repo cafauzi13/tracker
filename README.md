@@ -37,7 +37,7 @@ README.md       → file ini
 1. Buka link GitHub Pages di atas lewat Chrome.
 2. Ketuk menu titik tiga (⋮) di pojok kanan atas → **Add to Home screen** /
    **Install app**.
-3. Konfirmasi nama "Pekan Ini" → **Install/Add**.
+3. Konfirmasi nama "MyList" → **Install/Add**.
 4. Ikon muncul di home screen, buka seperti app biasa (tanpa address bar).
 
 **iPhone (Safari):**
@@ -87,7 +87,7 @@ Langkah tiap minggu:
 
 > Kalau ada perubahan pada `index.html`, `manifest.json`, atau file di
 > `icons/`, naikkan angka versi cache di baris pertama `sw.js`
-> (`const CACHE_NAME = 'pekan-ini-v1';` → `v2`, dst.) supaya HP mengambil
+> (`const CACHE_NAME = 'mylist-v2';` → `v3`, dst.) supaya HP mengambil
 > file baru, bukan versi lama dari cache.
 
 ## 4. Riwayat pekan, catatan & diary (disimpan di HP)

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pekan Ini — 7–13 Sept 2026</title>
+<title>MyList — 7–13 Sept 2026</title>
 <meta name="theme-color" content="#181f1d">
 <meta name="description" content="Tracker checklist mingguan — jadwal kuliah, deadline, fokus harian, dan jangkar ibadah/olahraga.">
 <link rel="manifest" href="manifest.json">
@@ -541,7 +541,7 @@ function renderWeek(weekId, focusDayId){
   updateWeekProgress();
 
   document.getElementById('eyebrow').textContent = isCurrent ? WEEK_LABEL : ((getWeekSnapshot(weekId) || {}).label || WEEK_LABEL);
-  document.title = 'Pekan Ini — ' + document.getElementById('eyebrow').textContent;
+  document.title = 'MyList — ' + document.getElementById('eyebrow').textContent;
 
   populateWeekSelect();
 }

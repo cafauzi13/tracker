@@ -1,6 +1,6 @@
 // Bump this version string any time you change index.html / manifest.json /
 // icons so the browser knows to fetch fresh copies and drop the old cache.
-const CACHE_NAME = 'pekan-ini-v1';
+const CACHE_NAME = 'mylist-v2';
 
 // Core files needed for the app to open with zero network at all.
 const PRECACHE_URLS = [

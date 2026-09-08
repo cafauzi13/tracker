@@ -1,6 +1,6 @@
 {
-  "name": "Pekan Ini",
-  "short_name": "Pekan Ini",
+  "name": "MyList",
+  "short_name": "MyList",
   "description": "Tracker checklist mingguan — jadwal kuliah, deadline, fokus harian, dan jangkar ibadah/olahraga.",
   "start_url": "./index.html",
   "scope": "./",
