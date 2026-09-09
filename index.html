@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MyList — 7–13 Sept 2026</title>
+<title>MyList — Tracker Mingguan</title>
 <meta name="theme-color" content="#181f1d">
 <meta name="description" content="Tracker checklist mingguan — jadwal kuliah, deadline, fokus harian, dan jangkar ibadah/olahraga.">
 <link rel="manifest" href="manifest.json">
@@ -57,15 +57,42 @@
   .bar{height:6px;border-radius:4px;background:var(--surface-2);overflow:hidden;}
   .bar-fill{height:100%;background:var(--gold);border-radius:4px;transition:width .4s ease;}
 
+  .controls-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center;}
   .week-select-wrap{
     display:flex;align-items:center;gap:8px;
-    margin:14px 0 0;font-size:12.5px;color:var(--paper-dim);
+    flex:1 1 200px;
+    font-size:12.5px;color:var(--paper-dim);
   }
   .week-select-wrap select{
-    flex:1;
+    flex:1;min-width:0;
     background:var(--surface);border:1px solid var(--line);color:var(--paper);
     border-radius:8px;padding:7px 9px;font-size:12.5px;font-family:'Inter',sans-serif;
   }
+
+  .btn{
+    padding:8px 12px;border-radius:9px;border:1px solid var(--line);
+    background:var(--surface);color:var(--paper);font-size:12.5px;font-weight:600;
+    cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;
+  }
+  .btn:hover{border-color:var(--gold);}
+  .btn.active{background:var(--gold);border-color:var(--gold);color:#20190a;}
+  .btn-ghost{background:transparent;}
+  .btn-danger{border-color:rgba(181,87,58,.6);color:#e2926f;}
+  .btn-danger:disabled{opacity:.4;cursor:not-allowed;}
+
+  #editPanelSlot{margin-top:14px;}
+  .edit-panel h2{
+    font-family:'Fraunces',serif;font-weight:500;font-size:15.5px;margin:0 0 12px;color:var(--paper);
+  }
+  .field{margin-bottom:12px;}
+  .field:last-child{margin-bottom:0;}
+  .field label{display:block;font-size:12px;color:var(--paper-dim);margin-bottom:5px;}
+  .f-input{
+    width:100%;background:var(--surface-2);border:1px solid var(--line);color:var(--paper);
+    border-radius:8px;padding:8px 10px;font-size:13px;font-family:'Inter',sans-serif;
+  }
+  .f-input:focus{outline:none;border-color:var(--gold);}
+  .panel-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
 
   .tabs{
     display:flex;gap:6px;overflow-x:auto;
@@ -140,6 +167,7 @@
   .item.checked .label{color:var(--paper-dim);text-decoration:line-through;text-decoration-color:var(--moss-dim);}
   .label{font-size:14px;line-height:1.4;}
   .sub{display:block;font-size:12px;color:var(--paper-dim);margin-top:1px;}
+  .empty-hint{font-size:13px;color:var(--paper-dim);padding:9px 0;}
 
   .anchors-grid{display:flex;flex-wrap:wrap;gap:8px;padding-bottom:12px;}
   .pillcheck{
@@ -170,6 +198,44 @@
   .notes::placeholder{color:var(--paper-dim);}
   .notes:focus{outline:none;border-color:var(--gold);}
 
+  /* --- edit mode --- */
+  .edit-row{display:flex;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);}
+  .edit-row:last-of-type{border-bottom:none;}
+  .edit-row .f-input{flex:1;min-width:0;}
+  .del-btn{
+    flex:0 0 auto;background:transparent;border:1px solid var(--line);color:var(--paper-dim);
+    width:26px;height:26px;border-radius:7px;cursor:pointer;font-size:13px;line-height:1;
+  }
+  .del-btn:hover{border-color:var(--rust);color:#e2926f;}
+  .del-btn.small{width:20px;height:20px;font-size:11px;}
+
+  .add-row-btn{
+    margin-top:8px;width:100%;padding:8px;border-radius:8px;
+    border:1px dashed var(--line);background:transparent;color:var(--paper-dim);
+    font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;
+  }
+  .add-row-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .add-row-btn.small{width:auto;padding:6px 10px;margin-top:0;}
+
+  .edit-pill{padding:4px 6px 4px 10px;}
+  .pill-input{
+    background:transparent;border:none;color:var(--paper);font-size:12.5px;
+    font-family:'Inter',sans-serif;width:110px;
+  }
+  .pill-input:focus{outline:none;}
+
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.55);
+    display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;
+  }
+  .modal-card{
+    background:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:20px;max-width:360px;width:100%;
+  }
+  .modal-card h2{font-family:'Fraunces',serif;font-weight:500;font-size:17px;margin:0 0 8px;}
+  .modal-desc{font-size:12.5px;color:var(--paper-dim);margin:0 0 14px;line-height:1.5;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:6px;}
+
   footer{margin-top:22px;text-align:center;}
   footer p{font-size:11.5px;color:var(--paper-dim);}
 </style>
@@ -177,36 +243,44 @@
 <body>
 <div class="wrap">
   <header>
-    <p class="eyebrow" id="eyebrow">7 – 13 September 2026</p>
+    <p class="eyebrow" id="eyebrow">Memuat…</p>
     <h1>Pekan ini, satu blok<br>per hari.</h1>
     <div class="week-progress">
       <div class="week-progress-top"><span id="weekLabel">Progres pekan</span><span id="weekPct">0%</span></div>
       <div class="bar"><div class="bar-fill" id="weekBar" style="width:0%"></div></div>
     </div>
-    <div class="week-select-wrap" id="weekSelectWrap" style="display:none;">
-      <span>Riwayat:</span>
-      <select id="weekSelect"></select>
+    <div class="controls-row">
+      <div class="week-select-wrap" id="weekSelectWrap" style="display:none;">
+        <span>Riwayat:</span>
+        <select id="weekSelect"></select>
+      </div>
+      <button class="btn" id="editToggleBtn" type="button">✏️ Edit pekan</button>
     </div>
+    <div id="editPanelSlot"></div>
     <p class="quote">"Ingat mati, jangan duniawi terus yang dipikir." Kerjakan satu per satu dengan tenang, hasilnya serahkan sepenuhnya pada Allah.</p>
   </header>
 
   <div class="tabs" id="tabs"></div>
   <div id="days"></div>
 
-  <footer><p>Tersimpan otomatis di perangkat ini setiap kamu centang atau menulis catatan.</p></footer>
+  <footer><p>Tersimpan otomatis di perangkat ini setiap kamu centang, menulis catatan, atau mengedit jadwal.</p></footer>
+  <input type="file" id="importFile" accept="application/json" style="display:none">
 </div>
 
 <script>
 // ============================================================
-// EDIT DI SINI TIAP MINGGU
-// Ganti WEEK_LABEL, DAYS, ANCHORS, dan todayId, lalu commit+push.
-// Data pekan lama otomatis tersimpan sebagai riwayat (lihat dropdown
-// "Riwayat" di atas) — tidak akan hilang walau array ini ditimpa.
+// SEED / TEMPLATE AWAL
+// Ini HANYA dipakai satu kali — saat app dibuka pertama kali di
+// perangkat yang localStorage-nya masih kosong (belum ada pekan
+// tersimpan sama sekali). Setelah itu, seluruh isi pekan (jadwal
+// kuliah, deadline, fokus, jangkar, label) diedit lewat tombol
+// "✏️ Edit pekan" di dalam app itu sendiri — bagian di bawah ini
+// tidak dibaca lagi. Aman dibiarkan apa adanya.
 // ============================================================
 
-const WEEK_LABEL = "7 – 13 September 2026";
+const SEED_WEEK_LABEL = "7 – 13 September 2026";
 
-const DAYS = [
+const SEED_DAYS = [
   {
     id: "2026-09-07", label:"Senin", date:"7 Sep", tag:"Hari bebas kuliah",
     kuliah: [],
@@ -294,15 +368,13 @@ const DAYS = [
   }
 ];
 
-const ANCHORS = ["Subuh","Dzuhur","Ashar","Maghrib","Isya","Hafalan 15–20 menit","IELTS 30–45 menit","Olahraga 20–30 menit"];
-
-const todayId = "2026-09-07";
+const SEED_ANCHORS = ["Subuh","Dzuhur","Ashar","Maghrib","Isya","Hafalan 15–20 menit","IELTS 30–45 menit","Olahraga 20–30 menit"];
 
 // ============================================================
-// akhir blok edit mingguan
+// akhir blok seed
 // ============================================================
 
-// ---- penyimpanan lokal (localStorage), menggantikan window.storage ----
+// ---- penyimpanan lokal (localStorage) ----
 const STORE_PREFIX = 'pekanini:';
 
 function lsGet(key){
@@ -313,62 +385,157 @@ function lsSet(key, val){
   try{ localStorage.setItem(STORE_PREFIX+key, val); }
   catch(e){ console.error('gagal simpan', e); }
 }
+function lsRemove(key){
+  try{ localStorage.removeItem(STORE_PREFIX+key); }
+  catch(e){ console.error('gagal hapus', e); }
+}
 
-// state checklist yang sedang aktif ditampilkan: { "dayId:section:idx": true }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+function isoDate(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function todayISO(){ return isoDate(new Date()); }
+
+const DAY_NAMES = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+const MONTH_SHORT = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+const MONTH_LONG = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+function shortDate(d){ return d.getDate()+' '+MONTH_SHORT[d.getMonth()]; }
+
+function makeWeekDays(startDate){
+  const days = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(startDate);
+    d.setDate(d.getDate()+i);
+    days.push({ id: isoDate(d), label: DAY_NAMES[d.getDay()], date: shortDate(d), tag: "", kuliah: [], agenda: [], deadlines: [], focus: [] });
+  }
+  return days;
+}
+
+function weekLabelFor(days){
+  const fd = new Date(days[0].id+'T00:00:00');
+  const ld = new Date(days[days.length-1].id+'T00:00:00');
+  if(fd.getMonth()===ld.getMonth() && fd.getFullYear()===ld.getFullYear()){
+    return `${fd.getDate()} – ${ld.getDate()} ${MONTH_LONG[ld.getMonth()]} ${ld.getFullYear()}`;
+  }
+  if(fd.getFullYear()===ld.getFullYear()){
+    return `${fd.getDate()} ${MONTH_LONG[fd.getMonth()]} – ${ld.getDate()} ${MONTH_LONG[ld.getMonth()]} ${ld.getFullYear()}`;
+  }
+  return `${fd.getDate()} ${MONTH_LONG[fd.getMonth()]} ${fd.getFullYear()} – ${ld.getDate()} ${MONTH_LONG[ld.getMonth()]} ${ld.getFullYear()}`;
+}
+
+// ---- normalisasi bentuk data (supaya seed lama & data baru konsisten) ----
+function normList(arr){
+  return (arr||[]).map((it,i)=>{
+    if(it && typeof it === 'object' && 'id' in it) return it;
+    if(typeof it === 'string') return { id:String(i), text:it };
+    return Object.assign({ id:String(i) }, it);
+  });
+}
+function normalizeDay(raw){
+  return {
+    id: raw.id, label: raw.label, date: raw.date, tag: raw.tag || "",
+    kuliah: normList(raw.kuliah),
+    agenda: normList(raw.agenda),
+    deadlines: normList(raw.deadlines),
+    focus: normList(raw.focus)
+  };
+}
+function normalizeAnchors(raw){ return normList(raw); }
+
+// ---- penyimpanan pekan ----
+function getWeekIndex(){ try{ return JSON.parse(lsGet('weeks')) || []; }catch(e){ return []; } }
+function setWeekIndex(idx){ lsSet('weeks', JSON.stringify(idx)); }
+function getWeekRaw(weekId){ try{ return JSON.parse(lsGet('week:'+weekId)); }catch(e){ return null; } }
+
+function saveWeek(weekObj){
+  weekObj.savedAt = new Date().toISOString();
+  lsSet('week:'+weekObj.weekId, JSON.stringify(weekObj));
+  const idx = getWeekIndex();
+  if(!idx.includes(weekObj.weekId)){
+    idx.push(weekObj.weekId);
+    idx.sort();
+    setWeekIndex(idx);
+  }
+}
+function loadWeek(weekId){
+  const raw = getWeekRaw(weekId);
+  if(!raw) return null;
+  return {
+    weekId: raw.weekId,
+    label: raw.label,
+    days: (raw.days||[]).map(normalizeDay),
+    anchors: normalizeAnchors(raw.anchors)
+  };
+}
+function deleteWeek(weekId){
+  lsRemove('week:'+weekId);
+  setWeekIndex(getWeekIndex().filter(id=>id!==weekId));
+}
+
+function ensureSeeded(){
+  if(getWeekIndex().length > 0) return;
+  saveWeek({ weekId: SEED_DAYS[0].id, label: SEED_WEEK_LABEL, days: SEED_DAYS, anchors: SEED_ANCHORS });
+}
+
+function pickHomeWeekId(){
+  const idx = getWeekIndex();
+  if(idx.length === 0) return null;
+  const t = todayISO();
+  for(const id of idx){
+    const w = loadWeek(id);
+    if(w && w.days.length && t >= w.days[0].id && t <= w.days[w.days.length-1].id) return id;
+  }
+  return idx.slice().sort().pop();
+}
+
+// ---- state aktif ----
 let state = {};
-// pekan yang sedang aktif ditampilkan (bisa pekan ini atau pekan lampau)
-let activeWeekId = DAYS[0].id;
-let activeDays = DAYS;
-let activeAnchors = ANCHORS;
+let activeWeekId = null;
+let activeWeek = null;
+let editMode = false;
 
 function checkSvg(){
   return '<svg viewBox="0 0 24 24" fill="none" stroke="#12201a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 18 20 6"></polyline></svg>';
 }
 
-function itemKey(dayId, section, idx){ return dayId+":"+section+":"+idx; }
+function itemKey(dayId, section, id){ return dayId+":"+section+":"+id; }
 
-// ---- riwayat pekan: setiap kali app dibuka, isi DAYS/ANCHORS pekan
-// ini "difoto" ke localStorage supaya tetap bisa dilihat walau minggu
-// depan array DAYS ditimpa dengan jadwal baru. Status checklist & catatan
-// harian TIDAK disalin ke sini — itu tetap dibaca langsung dari
-// localStorage berdasarkan tanggal (dayId), jadi tidak dobel. ----
-function getWeekIndex(){
-  try{ return JSON.parse(lsGet('weeks')) || []; }
-  catch(e){ return []; }
+function debounce(fn, wait){
+  let t;
+  return function(...args){ clearTimeout(t); t = setTimeout(()=> fn.apply(this,args), wait); };
 }
-function getWeekSnapshot(weekId){
-  try{ return JSON.parse(lsGet('week:'+weekId)); }
-  catch(e){ return null; }
-}
-function archiveCurrentWeek(){
-  const weekId = DAYS[0].id;
-  const snapshot = { weekId, label: WEEK_LABEL, days: DAYS, anchors: ANCHORS, savedAt: new Date().toISOString() };
-  lsSet('week:'+weekId, JSON.stringify(snapshot));
-  const idx = getWeekIndex();
-  if(!idx.includes(weekId)){
-    idx.push(weekId);
-    idx.sort();
-    lsSet('weeks', JSON.stringify(idx));
-  }
-}
+const persistActiveWeek = debounce(()=>{ if(activeWeek) saveWeek(activeWeek); }, 400);
 
 function dayTotalAndDone(day, anchors){
   let total=0, done=0;
-  day.deadlines.forEach((_,i)=>{ total++; if(state[itemKey(day.id,'deadline',i)]) done++; });
-  day.focus.forEach((_,i)=>{ total++; if(state[itemKey(day.id,'focus',i)]) done++; });
-  anchors.forEach((_,i)=>{ total++; if(state[itemKey(day.id,'anchor',i)]) done++; });
+  day.deadlines.forEach(dl=>{ total++; if(state[itemKey(day.id,'deadline',dl.id)]) done++; });
+  day.focus.forEach(f=>{ total++; if(state[itemKey(day.id,'focus',f.id)]) done++; });
+  anchors.forEach(a=>{ total++; if(state[itemKey(day.id,'anchor',a.id)]) done++; });
   return {total, done};
 }
 
-function renderTabs(activeId, days, isCurrent){
+function loadState(days, anchors){
+  const s = {};
+  days.forEach(d=>{
+    d.deadlines.forEach(dl=>{ const k=itemKey(d.id,'deadline',dl.id); if(lsGet('check:'+k)==="1") s[k]=true; });
+    d.focus.forEach(f=>{ const k=itemKey(d.id,'focus',f.id); if(lsGet('check:'+k)==="1") s[k]=true; });
+    anchors.forEach(a=>{ const k=itemKey(d.id,'anchor',a.id); if(lsGet('check:'+k)==="1") s[k]=true; });
+  });
+  return s;
+}
+
+// ---- render: mode baca (tampilan normal) ----
+function renderTabs(activeId, days){
   const tabs = document.getElementById('tabs');
   tabs.innerHTML = "";
+  const t = todayISO();
   days.forEach(d=>{
-    const el = document.createElement('div');
-    el.className = 'tab' + (d.id===activeId?' active':'') + (isCurrent && d.id===todayId?' today':'');
-    el.innerHTML = `${d.label}<span class="d">${d.date}</span>`;
-    el.onclick = ()=> showDay(d.id);
-    tabs.appendChild(el);
+    const tab = document.createElement('div');
+    tab.className = 'tab' + (d.id===activeId?' active':'') + (d.id===t?' today':'');
+    tab.innerHTML = `${d.label}<span class="d">${d.date}</span>`;
+    tab.onclick = ()=> showDay(d.id);
+    tabs.appendChild(tab);
   });
 }
 
@@ -397,21 +564,25 @@ function renderDay(day, anchors){
 
   if(day.deadlines.length){
     html += `<div class="card deadline"><h2>Deadline hari ini</h2>`;
-    day.deadlines.forEach((dl,i)=>{
-      html += `<div class="item" data-key="${itemKey(day.id,'deadline',i)}"><div class="box"></div><div class="label">${dl.judul}${dl.ket?`<span class="sub">${dl.ket}</span>`:''}</div></div>`;
+    day.deadlines.forEach(dl=>{
+      html += `<div class="item" data-key="${itemKey(day.id,'deadline',dl.id)}"><div class="box"></div><div class="label">${dl.judul}${dl.ket?`<span class="sub">${dl.ket}</span>`:''}</div></div>`;
     });
     html += `</div>`;
   }
 
   html += `<div class="card"><h2>Fokus utama</h2>`;
-  day.focus.forEach((f,i)=>{
-    html += `<div class="item" data-key="${itemKey(day.id,'focus',i)}"><div class="box"></div><div class="label">${f}</div></div>`;
-  });
+  if(day.focus.length){
+    day.focus.forEach(f=>{
+      html += `<div class="item" data-key="${itemKey(day.id,'focus',f.id)}"><div class="box"></div><div class="label">${f.text}</div></div>`;
+    });
+  }else{
+    html += `<div class="empty-hint">Belum ada fokus untuk hari ini. Ketuk "✏️ Edit pekan" untuk menambahkan.</div>`;
+  }
   html += `</div>`;
 
   html += `<div class="card"><h2>Jangkar harian</h2><div class="anchors-grid">`;
-  anchors.forEach((a,i)=>{
-    html += `<div class="pillcheck" data-key="${itemKey(day.id,'anchor',i)}"><span class="dot2"></span>${a}</div>`;
+  anchors.forEach(a=>{
+    html += `<div class="pillcheck" data-key="${itemKey(day.id,'anchor',a.id)}"><span class="dot2"></span>${a.text}</div>`;
   });
   html += `</div></div>`;
 
@@ -449,8 +620,8 @@ function toggle(key){
 
 function updateWeekProgress(){
   let total=0, done=0;
-  activeDays.forEach(d=>{
-    const r = dayTotalAndDone(d, activeAnchors);
+  activeWeek.days.forEach(d=>{
+    const r = dayTotalAndDone(d, activeWeek.anchors);
     total += r.total; done += r.done;
   });
   const pct = total ? Math.round(done/total*100) : 0;
@@ -460,7 +631,7 @@ function updateWeekProgress(){
 
 function showDay(id){
   document.querySelectorAll('.day').forEach(d=> d.classList.toggle('active', d.id === 'day-'+id));
-  renderTabs(id, activeDays, activeWeekId === DAYS[0].id);
+  renderTabs(id, activeWeek.days);
 }
 
 document.addEventListener('click', (e)=>{
@@ -473,82 +644,323 @@ document.addEventListener('input', (e)=>{
   if(ta) lsSet('note:'+ta.dataset.day, ta.value);
 });
 
-function loadState(days, anchors){
-  const s = {};
-  days.forEach(d=>{
-    d.deadlines.forEach((_,i)=>{ const k=itemKey(d.id,'deadline',i); if(lsGet('check:'+k)==="1") s[k]=true; });
-    d.focus.forEach((_,i)=>{ const k=itemKey(d.id,'focus',i); if(lsGet('check:'+k)==="1") s[k]=true; });
-    anchors.forEach((_,i)=>{ const k=itemKey(d.id,'anchor',i); if(lsGet('check:'+k)==="1") s[k]=true; });
+// ---- render: mode edit ----
+function el(tag, attrs, ...children){
+  const node = document.createElement(tag);
+  if(attrs){
+    Object.keys(attrs).forEach(k=>{
+      const v = attrs[k];
+      if(v === undefined || v === null) return;
+      if(k === 'class'){ node.className = v; }
+      else if(k === 'value'){ node.value = v; }
+      else if(k.indexOf('on') === 0 && typeof v === 'function'){ node.addEventListener(k.slice(2), v); }
+      else if(typeof v === 'boolean'){ if(v) node.setAttribute(k, ''); }
+      else{ node.setAttribute(k, v); }
+    });
+  }
+  children.flat(Infinity).forEach(c=>{
+    if(c === null || c === undefined) return;
+    node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
   });
-  return s;
+  return node;
 }
 
-function populateWeekSelect(){
-  const idx = getWeekIndex();
-  const curId = DAYS[0].id;
-  if(!idx.includes(curId)) idx.push(curId);
-  idx.sort().reverse(); // terbaru dulu (format tanggal ISO, aman diurutkan sebagai string)
+function fieldInput(value, placeholder, onInput, type){
+  return el('input', {
+    class: 'f-input',
+    type: type || 'text',
+    placeholder: placeholder || '',
+    value: value || '',
+    oninput: (e)=>{ onInput(e.target.value); persistActiveWeek(); }
+  });
+}
 
+function editRow(fields, onDelete){
+  return el('div', {class:'edit-row'}, ...fields, el('button', {class:'del-btn', type:'button', 'aria-label':'Hapus', onclick:onDelete}, '✕'));
+}
+
+function renderKuliahEditor(day){
+  const box = el('div', {class:'card'}, el('h2', null, 'Kuliah'));
+  day.kuliah.forEach(k=>{
+    box.appendChild(editRow([
+      fieldInput(k.mk, 'Mata kuliah', v=>k.mk=v),
+      fieldInput(k.waktu, 'Jam (mis. 09.40–11.20)', v=>k.waktu=v),
+      fieldInput(k.ruang, 'Ruang', v=>k.ruang=v)
+    ], ()=>{ day.kuliah = day.kuliah.filter(x=>x.id!==k.id); saveWeek(activeWeek); refreshActiveWeekView(); }));
+  });
+  box.appendChild(el('button', {class:'add-row-btn', type:'button', onclick:()=>{
+    day.kuliah.push({id:uid(), mk:'', waktu:'', ruang:''});
+    saveWeek(activeWeek); refreshActiveWeekView();
+  }}, '+ Tambah kuliah'));
+  return box;
+}
+
+function renderAgendaEditor(day){
+  const box = el('div', {class:'card'}, el('h2', null, 'Agenda'));
+  day.agenda.forEach(a=>{
+    box.appendChild(editRow([
+      fieldInput(a.judul, 'Judul agenda', v=>a.judul=v),
+      fieldInput(a.waktu, 'Jam', v=>a.waktu=v),
+      fieldInput(a.ket, 'Keterangan', v=>a.ket=v)
+    ], ()=>{ day.agenda = day.agenda.filter(x=>x.id!==a.id); saveWeek(activeWeek); refreshActiveWeekView(); }));
+  });
+  box.appendChild(el('button', {class:'add-row-btn', type:'button', onclick:()=>{
+    day.agenda.push({id:uid(), judul:'', waktu:'', ket:''});
+    saveWeek(activeWeek); refreshActiveWeekView();
+  }}, '+ Tambah agenda'));
+  return box;
+}
+
+function renderDeadlineEditor(day){
+  const box = el('div', {class:'card deadline'}, el('h2', null, 'Deadline'));
+  day.deadlines.forEach(dl=>{
+    box.appendChild(editRow([
+      fieldInput(dl.judul, 'Judul deadline', v=>dl.judul=v),
+      fieldInput(dl.ket, 'Keterangan (opsional)', v=>dl.ket=v)
+    ], ()=>{ day.deadlines = day.deadlines.filter(x=>x.id!==dl.id); saveWeek(activeWeek); refreshActiveWeekView(); }));
+  });
+  box.appendChild(el('button', {class:'add-row-btn', type:'button', onclick:()=>{
+    day.deadlines.push({id:uid(), judul:'', ket:''});
+    saveWeek(activeWeek); refreshActiveWeekView();
+  }}, '+ Tambah deadline'));
+  return box;
+}
+
+function renderFocusEditor(day){
+  const box = el('div', {class:'card'}, el('h2', null, 'Fokus utama'));
+  day.focus.forEach(f=>{
+    box.appendChild(editRow([
+      fieldInput(f.text, 'Fokus / tugas', v=>f.text=v)
+    ], ()=>{ day.focus = day.focus.filter(x=>x.id!==f.id); saveWeek(activeWeek); refreshActiveWeekView(); }));
+  });
+  box.appendChild(el('button', {class:'add-row-btn', type:'button', onclick:()=>{
+    day.focus.push({id:uid(), text:''});
+    saveWeek(activeWeek); refreshActiveWeekView();
+  }}, '+ Tambah fokus'));
+  return box;
+}
+
+function renderDayEditor(day){
+  const wrap = el('div', {class:'day'});
+  wrap.id = 'day-'+day.id;
+  wrap.appendChild(renderKuliahEditor(day));
+  wrap.appendChild(renderAgendaEditor(day));
+  wrap.appendChild(renderDeadlineEditor(day));
+  wrap.appendChild(renderFocusEditor(day));
+  return wrap;
+}
+
+function renderWeekSettingsPanel(){
+  const panel = el('div', {class:'card edit-panel'}, el('h2', null, 'Pengaturan pekan'));
+
+  panel.appendChild(el('div', {class:'field'},
+    el('label', null, 'Label pekan'),
+    fieldInput(activeWeek.label, 'mis. 7 – 13 September 2026', v=>{
+      activeWeek.label = v;
+      document.getElementById('eyebrow').textContent = v;
+      document.title = 'MyList — ' + v;
+    })
+  ));
+
+  const anchorField = el('div', {class:'field'}, el('label', null, 'Jangkar harian (berlaku untuk semua hari di pekan ini)'));
+  const anchorGrid = el('div', {class:'anchors-grid'});
+  activeWeek.anchors.forEach(a=>{
+    anchorGrid.appendChild(el('div', {class:'pillcheck edit-pill'},
+      el('span', {class:'dot2'}),
+      el('input', {class:'pill-input', value:a.text, oninput:(e)=>{ a.text=e.target.value; persistActiveWeek(); }}),
+      el('button', {class:'del-btn small', type:'button', 'aria-label':'Hapus jangkar', onclick:()=>{
+        activeWeek.anchors = activeWeek.anchors.filter(x=>x.id!==a.id);
+        saveWeek(activeWeek); refreshActiveWeekView();
+      }}, '✕')
+    ));
+  });
+  anchorGrid.appendChild(el('button', {class:'add-row-btn small', type:'button', onclick:()=>{
+    activeWeek.anchors.push({id:uid(), text:'Jangkar baru'});
+    saveWeek(activeWeek); refreshActiveWeekView();
+  }}, '+ Jangkar'));
+  anchorField.appendChild(anchorGrid);
+  panel.appendChild(anchorField);
+
+  const idxLen = getWeekIndex().length;
+  panel.appendChild(el('div', {class:'panel-actions'},
+    el('button', {class:'btn', type:'button', onclick:openNewWeekModal}, '+ Pekan baru'),
+    el('button', {class:'btn btn-ghost', type:'button', onclick:exportData}, '⬇ Ekspor data'),
+    el('button', {class:'btn btn-ghost', type:'button', onclick:()=>document.getElementById('importFile').click()}, '⬆ Impor data'),
+    el('button', {class:'btn btn-danger', type:'button', disabled: idxLen<=1, onclick:deleteActiveWeek}, '🗑 Hapus pekan ini')
+  ));
+
+  return panel;
+}
+
+function openNewWeekModal(){
+  const idx = getWeekIndex();
+  let defaultStart;
+  if(idx.length){
+    const latest = idx.slice().sort().pop();
+    const w = loadWeek(latest);
+    const lastDay = new Date(w.days[w.days.length-1].id+'T00:00:00');
+    lastDay.setDate(lastDay.getDate()+1);
+    defaultStart = isoDate(lastDay);
+  }else{
+    defaultStart = todayISO();
+  }
+
+  const overlay = el('div', {class:'modal-overlay', onclick:(e)=>{ if(e.target===overlay) overlay.remove(); }});
+  const dateInput = el('input', {type:'date', value:defaultStart, class:'f-input'});
+  const card = el('div', {class:'modal-card'},
+    el('h2', null, 'Buat pekan baru'),
+    el('p', {class:'modal-desc'}, '7 hari berturut-turut akan dibuat otomatis mulai dari tanggal ini. Jangkar harian akan disalin dari pekan yang sedang dibuka.'),
+    el('div', {class:'field'}, el('label', null, 'Tanggal mulai'), dateInput),
+    el('div', {class:'modal-actions'},
+      el('button', {class:'btn btn-ghost', type:'button', onclick:()=> overlay.remove()}, 'Batal'),
+      el('button', {class:'btn', type:'button', onclick:()=>{
+        const val = dateInput.value;
+        if(!val) return;
+        const start = new Date(val+'T00:00:00');
+        const days = makeWeekDays(start);
+        const weekId = days[0].id;
+        if(getWeekRaw(weekId)){
+          alert('Sudah ada pekan yang dimulai tanggal ini — pilih tanggal lain atau buka lewat dropdown Riwayat.');
+          return;
+        }
+        const anchors = activeWeek ? activeWeek.anchors.map(a=>({id:uid(), text:a.text})) : normalizeAnchors(SEED_ANCHORS);
+        saveWeek({ weekId, label: weekLabelFor(days), days, anchors });
+        overlay.remove();
+        editMode = true;
+        setActiveWeek(weekId);
+      }}, 'Buat')
+    )
+  );
+  overlay.appendChild(card);
+  document.body.appendChild(overlay);
+  dateInput.focus();
+}
+
+function deleteActiveWeek(){
+  if(getWeekIndex().length <= 1) return;
+  if(!confirm('Hapus jadwal, label, dan jangkar pekan ini? Catatan & status checklist per tanggal tetap tersimpan (tidak ikut terhapus), tapi tidak akan terlihat lagi sampai kamu buat ulang pekan dengan tanggal yang sama. Tindakan ini tidak bisa dibatalkan.')) return;
+  deleteWeek(activeWeekId);
+  setActiveWeek(pickHomeWeekId());
+}
+
+function exportData(){
+  const data = {};
+  for(let i=0;i<localStorage.length;i++){
+    const key = localStorage.key(i);
+    if(key && key.indexOf(STORE_PREFIX) === 0){
+      data[key.slice(STORE_PREFIX.length)] = localStorage.getItem(key);
+    }
+  }
+  const payload = { app:'MyList', version:1, exportedAt:new Date().toISOString(), data };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mylist-backup-'+todayISO()+'.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function importDataFromFile(file){
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const payload = JSON.parse(reader.result);
+      if(!payload || typeof payload.data !== 'object') throw new Error('format tidak dikenali');
+      if(!confirm('Impor akan menimpa data yang key-nya sama (pekan, checklist, catatan) dengan isi file ini. Lanjutkan?')) return;
+      Object.keys(payload.data).forEach(k=> lsSet(k, payload.data[k]));
+      alert('Impor berhasil. Halaman akan dimuat ulang.');
+      location.reload();
+    }catch(e){
+      console.error('gagal impor', e);
+      alert('Gagal impor: file tidak valid.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('importFile').addEventListener('change', (e)=>{
+  const f = e.target.files[0];
+  if(f) importDataFromFile(f);
+  e.target.value = '';
+});
+
+document.getElementById('editToggleBtn').addEventListener('click', ()=>{
+  editMode = !editMode;
+  refreshActiveWeekView(false);
+});
+
+// ---- populate dropdown riwayat ----
+function populateWeekSelect(){
+  const idx = getWeekIndex().slice().sort().reverse();
   const wrap = document.getElementById('weekSelectWrap');
   const sel = document.getElementById('weekSelect');
-
-  if(idx.length <= 1){ wrap.style.display = 'none'; return; }
+  if(idx.length === 0){ wrap.style.display = 'none'; return; }
   wrap.style.display = 'flex';
-
+  const t = todayISO();
   sel.innerHTML = '';
   idx.forEach(id=>{
+    const w = loadWeek(id);
+    if(!w) return;
     const opt = document.createElement('option');
     opt.value = id;
-    if(id === curId){
-      opt.textContent = WEEK_LABEL + ' (pekan ini)';
-    }else{
-      const snap = getWeekSnapshot(id);
-      opt.textContent = snap ? snap.label : id;
-    }
+    const isThisWeek = w.days.length && t >= w.days[0].id && t <= w.days[w.days.length-1].id;
+    opt.textContent = w.label + (isThisWeek ? ' (pekan ini)' : '');
     sel.appendChild(opt);
   });
   sel.value = activeWeekId;
-  sel.onchange = ()=> renderWeek(sel.value);
+  sel.onchange = ()=>{ editMode = false; setActiveWeek(sel.value); };
 }
 
-function renderWeek(weekId, focusDayId){
-  const isCurrent = weekId === DAYS[0].id;
-  let days, anchors;
-
-  if(isCurrent){
-    days = DAYS; anchors = ANCHORS;
-  }else{
-    const snap = getWeekSnapshot(weekId);
-    if(!snap) return;
-    days = snap.days; anchors = snap.anchors;
-  }
-
+// ---- switch / refresh pekan aktif ----
+function setActiveWeek(weekId){
   activeWeekId = weekId;
-  activeDays = days;
-  activeAnchors = anchors;
-  state = loadState(days, anchors);
+  activeWeek = loadWeek(weekId);
+  refreshActiveWeekView(true);
+}
+
+function refreshActiveWeekView(pickDefaultDay){
+  if(!activeWeek) return;
+  state = loadState(activeWeek.days, activeWeek.anchors);
+
+  const settingsSlot = document.getElementById('editPanelSlot');
+  settingsSlot.innerHTML = '';
+  if(editMode) settingsSlot.appendChild(renderWeekSettingsPanel());
 
   const daysEl = document.getElementById('days');
+  const activeEl = daysEl.querySelector('.day.active');
+  const prevActiveDay = activeEl ? activeEl.id.replace('day-','') : null;
   daysEl.innerHTML = '';
-  days.forEach(d => daysEl.appendChild(renderDay(d, anchors)));
-  document.querySelectorAll('.day').forEach(applyState);
+  activeWeek.days.forEach(d=>{
+    daysEl.appendChild(editMode ? renderDayEditor(d) : renderDay(d, activeWeek.anchors));
+  });
+  if(!editMode) document.querySelectorAll('.day').forEach(applyState);
 
-  const defaultDay = (focusDayId && days.some(d=>d.id===focusDayId))
-    ? focusDayId
-    : (isCurrent && days.some(d=>d.id===todayId) ? todayId : days[0].id);
-
+  const t = todayISO();
+  let defaultDay;
+  if(pickDefaultDay){
+    defaultDay = activeWeek.days.some(d=>d.id===t) ? t : activeWeek.days[0].id;
+  }else{
+    defaultDay = (prevActiveDay && activeWeek.days.some(d=>d.id===prevActiveDay)) ? prevActiveDay : activeWeek.days[0].id;
+  }
   showDay(defaultDay);
-  updateWeekProgress();
 
-  document.getElementById('eyebrow').textContent = isCurrent ? WEEK_LABEL : ((getWeekSnapshot(weekId) || {}).label || WEEK_LABEL);
-  document.title = 'MyList — ' + document.getElementById('eyebrow').textContent;
+  updateWeekProgress();
+  document.getElementById('eyebrow').textContent = activeWeek.label;
+  document.title = 'MyList — ' + activeWeek.label;
 
   populateWeekSelect();
+
+  const btn = document.getElementById('editToggleBtn');
+  btn.classList.toggle('active', editMode);
+  btn.textContent = editMode ? '✓ Selesai edit' : '✏️ Edit pekan';
 }
 
 function init(){
-  archiveCurrentWeek();
-  renderWeek(DAYS[0].id, todayId);
+  ensureSeeded();
+  setActiveWeek(pickHomeWeekId());
 }
 init();
 
